@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<title>Teste Recipients</title>
+<style>
+body{background:#07090f;color:#e2e8f0;font-family:Inter,sans-serif;padding:32px;max-width:600px;margin:0 auto}
+input,textarea{width:100%;background:#131922;border:1px solid #1e2d3d;border-radius:8px;padding:10px;color:#e2e8f0;font-family:Inter,sans-serif;font-size:13px;margin-bottom:12px;outline:none;box-sizing:border-box}
+label{font-size:11px;color:#7a9ab8;font-weight:600;display:block;margin-bottom:4px}
+button{background:#25d366;color:#000;border:none;border-radius:8px;padding:12px 24px;font-size:13px;font-weight:700;cursor:pointer;width:100%;margin-bottom:8px}
+button:hover{background:#20c55a}
+pre{background:#131922;border:1px solid #1e2d3d;border-radius:8px;padding:16px;font-size:12px;overflow-x:auto;white-space:pre-wrap;margin-top:16px}
+h2{font-size:16px;margin-bottom:20px}
+.hint{font-size:11px;color:#4a6080;margin-top:-8px;margin-bottom:12px}
+</style>
+</head>
+<body>
+<h2>Teste — Campanha com Destinatários</h2>
+
+<label>Sender</label>
+<input id="sender" value="5521920130652"/>
+
+<label>Template</label>
+<input id="template" value="com_imagem"/>
+
+<label>Variáveis (separadas por vírgula)</label>
+<input id="placeholders" value="João,Promoção,Oferta,saber mais"/>
+
+<label>URL da imagem</label>
+<input id="imageUrl" value="https://i.ibb.co/jmBHrdt/image-17.jpg"/>
+
+<label>Destinatários (um por linha)</label>
+<textarea id="numbers" rows="5" placeholder="5511999990001&#10;5511999990002&#10;5511999990003">5511999990001
+5511999990002
+5511999990003</textarea>
+<div class="hint">Apenas para teste — use poucos números</div>
+
+<button onclick="testar()">Criar campanha com destinatários</button>
+
+<pre id="result">Resultado aparece aqui...</pre>
+
+<script>
+const WH = 'https://rarelookingorca-n8n.cloudfy.live/webhook/infobip-campanha';
+const AK = '5d85f30d4b42757fad576c5d267a5469-228cc988-a388-4cc8-8acb-39b7331cc89d';
+const BU = 'qdn5nq.api.infobip.com';
+
+async function testar() {
+  document.getElementById('result').textContent = 'Aguardando...';
+  const numbers = document.getElementById('numbers').value
+    .split('\n').map(n => n.trim().replace(/\D/g, '')).filter(n => n.length >= 10);
+  const placeholders = document.getElementById('placeholders').value.split(',').map(p => p.trim());
+
+  try {
+    const r = await fetch(WH, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'createCampaign',
+        apiKey: AK, baseUrl: BU,
+        username: 'hurley08', password: '@Guu0809',
+        campaignName: 'Teste_Recipients_' + Date.now(),
+        sender: document.getElementById('sender').value,
+        templateName: document.getElementById('template').value,
+        language: 'pt_BR',
+        placeholders: placeholders,
+        imageUrl: document.getElementById('imageUrl').value,
+        phoneNumbers: numbers
+      })
+    });
+    const d = await r.json();
+    document.getElementById('result').textContent = JSON.stringify(d, null, 2);
+  } catch(e) {
+    document.getElementById('result').textContent = 'Erro: ' + e.message;
+  }
+}
+</script>
+</body>
+</html>
